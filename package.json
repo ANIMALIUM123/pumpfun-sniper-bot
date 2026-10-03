@@ -9,7 +9,6 @@
     "dev": "tsx watch src/index.ts",
     "start:ts": "tsx src/index.ts",
     "typecheck": "tsc --noEmit",
-    "lint": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
   },

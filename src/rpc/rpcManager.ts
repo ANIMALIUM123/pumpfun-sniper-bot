@@ -68,7 +68,8 @@ export class RpcManager {
     let lastError: unknown;
     for (let attempt = 0; attempt < this.connections.length; attempt++) {
       try {
-        return await fn(this.connection);
+        // First attempt may switch back to the primary; retries walk the endpoints by index.
+        return await fn(attempt === 0 ? this.connection : this.connections[this.index]);
       } catch (error) {
         lastError = error;
         this.log.debug({ label, endpoint: this.currentEndpoint, err: errorMessage(error) }, 'RPC call failed');

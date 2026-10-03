@@ -176,3 +176,24 @@ describe('wallet loading', () => {
     }
   });
 });
+
+describe('rpc failover', () => {
+  it('tries every endpoint once and sticks to the one that works', async () => {
+    const { RpcManager } = await import('../src/rpc/rpcManager');
+    const rpc = new RpcManager([
+      { http: 'http://a.invalid', ws: 'ws://a.invalid', label: 'a' },
+      { http: 'http://b.invalid', ws: 'ws://b.invalid', label: 'b' },
+      { http: 'http://c.invalid', ws: 'ws://c.invalid', label: 'c' },
+    ]);
+    const seen: string[] = [];
+    const result = await rpc.call('test', async (c) => {
+      seen.push(c.rpcEndpoint);
+      if (!c.rpcEndpoint.includes('c.invalid')) throw new Error('down');
+      return 'ok';
+    });
+    expect(result).toBe('ok');
+    expect(seen).toEqual(['http://a.invalid', 'http://b.invalid', 'http://c.invalid']);
+    expect(rpc.currentEndpoint).toBe('http://c.invalid');
+    await expect(rpc.call('test', async () => Promise.reject(new Error('all down')))).rejects.toThrow('all down');
+  });
+});

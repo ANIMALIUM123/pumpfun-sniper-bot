@@ -292,3 +292,21 @@ describe('alert channels', () => {
     await expect(new Notifier([failing]).send('test')).resolves.toBeUndefined();
   });
 });
+
+describe('price tracker', () => {
+  it('tracks SOL-paired new tokens and records ticks from the trade stream', () => {
+    const db = openDatabase(':memory:');
+    const repo = new Repository(db);
+    const prices = new PriceTracker(repo, { trackNewTokensSeconds: 300, maxTrackedTokens: 10, tickIntervalMs: 0 });
+    const token = makeDetectedToken();
+    repo.insertToken(token);
+    prices.trackNewToken(token);
+    prices.trackNewToken(makeDetectedToken({ quoteMint: randomKey().toBase58() })); // non-SOL quote: ignored
+    expect(prices.size).toBe(1);
+    const trade = makeTradeEvent({ mint: token.mint });
+    expect(prices.onTrade(trade)?.priceSol).toBeGreaterThan(token.priceSol);
+    expect(repo.getLatestPriceTick(token.mint)).toMatchObject({ source: 'stream' });
+    expect(repo.getToken(token.mint)?.lastPriceSol).toBeGreaterThan(0);
+    db.close();
+  });
+});

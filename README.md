@@ -21,7 +21,7 @@ It watches the Solana blockchain over WebSocket, detects every new Pump.fun coin
 | **Database** | SQLite (WAL) with tokens, positions, trades, price history and performance metrics. All SQL lives in one repository class, so moving to PostgreSQL later is straightforward. |
 | **API / "RPC lite"** | REST endpoints for detected tokens, live prices, on-chain bonding-curve reads, positions, trades, metrics and controls. Includes a status dashboard. |
 | **Alerts** | Optional Discord webhook and Telegram bot alerts for buys, sells, errors and (optionally) every detected token. |
-| **Production basics** | Typed config validated with zod, structured logs (pino) with secret redaction, graceful shutdown, open positions resumed after a restart, RPC failover, Docker image, CI and 58 tests. |
+| **Production basics** | Typed config validated with zod, structured logs (pino) with secret redaction, graceful shutdown, open positions resumed after a restart, RPC failover, Docker image, CI and 60 tests. |
 
 ## Architecture
 

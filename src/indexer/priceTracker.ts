@@ -1,5 +1,5 @@
 import type { Repository } from '../database/repository';
-import { bondingCurveProgress, marketCapSol, priceSolPerToken } from '../pumpfun';
+import { NATIVE_MINT, bondingCurveProgress, marketCapSol, priceSolPerToken } from '../pumpfun';
 import type { CurveReserves, DetectedToken, PriceTick, TradeEventData } from '../types';
 import { errorMessage } from '../utils/async';
 import { getLogger } from '../utils/logger';
@@ -49,7 +49,8 @@ export class PriceTracker {
 
   /** Starts tracking a freshly detected token for `trackNewTokensSeconds`. */
   trackNewToken(token: DetectedToken): void {
-    if (this.opts.trackNewTokensSeconds <= 0 || token.quoteMint !== null) return;
+    const solPaired = token.quoteMint === null || token.quoteMint === NATIVE_MINT.toBase58();
+    if (this.opts.trackNewTokensSeconds <= 0 || !solPaired) return;
     this.upsert(token.mint, token.reserves, token.tokenTotalSupply, 'stream', {
       trackUntil: token.detectedAt + this.opts.trackNewTokensSeconds * 1000,
     });

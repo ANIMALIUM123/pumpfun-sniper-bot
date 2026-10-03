@@ -37,7 +37,7 @@ export interface TradeTarget {
 
 export interface BuyResult {
   signature: string | null;
-  /** Total SOL that left the wallet (amount + protocol fees + tx fees + rent). */
+  /** SOL that left the wallet (amount + protocol fees + tx fees), excluding refundable token-account rent. */
   solSpent: number;
   tokenAmount: bigint;
   latencyMs: number;
@@ -45,7 +45,7 @@ export interface BuyResult {
 
 export interface SellResult {
   signature: string | null;
-  /** Net SOL received in the wallet (after all fees, plus reclaimed rent). */
+  /** Net SOL received in the wallet after all fees, excluding the reclaimed token-account rent. */
   solReceived: number;
   tokenAmountSold: bigint;
   latencyMs: number;

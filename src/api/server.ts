@@ -42,10 +42,15 @@ function parseMint(value: unknown): string {
   }
 }
 
-function safeEqual(a: string, b: string): boolean {
-  const ha = crypto.createHash('sha256').update(a).digest();
-  const hb = crypto.createHash('sha256').update(b).digest();
-  return crypto.timingSafeEqual(ha, hb);
+/** Constant-time comparison of the provided API key with the configured one. */
+function safeEqual(provided: string, expected: string): boolean {
+  const a = Buffer.from(provided);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length) {
+    crypto.timingSafeEqual(b, b); // keep timing independent of where the mismatch is
+    return false;
+  }
+  return crypto.timingSafeEqual(a, b);
 }
 
 function providedKey(req: Request): string | undefined {
@@ -208,7 +213,6 @@ export function createApp({ repo, bot, apiKey }: ApiOptions): express.Express {
 
   app.use((_req, _res, next) => next(new HttpError(404, 'Not found')));
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   app.use((error: unknown, req: Request, res: Response, _next: NextFunction) => {
     if (error instanceof HttpError) return void res.status(error.status).json({ error: error.message });
     if (error instanceof ZodError) {
