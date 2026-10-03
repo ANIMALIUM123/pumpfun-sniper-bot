@@ -1,4 +1,5 @@
 import type { Statement } from 'better-sqlite3';
+import { lamportsToSol } from '../pumpfun/math';
 import type { Db } from './db';
 import type {
   DetectedToken,
@@ -222,7 +223,7 @@ export class Repository {
         initialVirtualSol: t.virtualSolReserves.toString(),
         initialVirtualToken: t.virtualTokenReserves.toString(),
         initialRealToken: t.realTokenReserves.toString(),
-        devBuySol: Number(t.devBuySol) / 1e9,
+        devBuySol: lamportsToSol(t.devBuySol),
         priceSol: t.priceSol,
         marketCapSol: t.marketCapSol,
         lastRealSol: t.reserves.realSolReserves.toString(),
@@ -236,8 +237,11 @@ export class Repository {
   }
 
   listTokens(opts: { limit: number; offset: number; search?: string }): { items: StoredToken[]; total: number } {
-    const where = opts.search ? 'WHERE name LIKE @q OR symbol LIKE @q OR mint = @exact' : '';
-    const params = opts.search ? { q: `%${opts.search}%`, exact: opts.search } : {};
+    const where = opts.search
+      ? "WHERE name LIKE @q ESCAPE '\\' OR symbol LIKE @q ESCAPE '\\' OR mint = @exact"
+      : '';
+    const escaped = opts.search?.replace(/[\\%_]/g, (c) => `\\${c}`);
+    const params = opts.search ? { q: `%${escaped}%`, exact: opts.search } : {};
     const items = (
       this.stmt(`SELECT * FROM tokens ${where} ORDER BY detected_at DESC LIMIT @limit OFFSET @offset`)
         .all({ ...params, limit: opts.limit, offset: opts.offset }) as Row[]

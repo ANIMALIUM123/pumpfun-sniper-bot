@@ -83,6 +83,9 @@ describe('repository', () => {
     expect(repo.listTokens({ limit: 10, offset: 0, search: 'moon' }).total).toBe(1);
     expect(repo.listTokens({ limit: 10, offset: 0, search: 'zzz' }).items).toEqual([]);
     expect(repo.listTokens({ limit: 10, offset: 0 }).items).toHaveLength(1);
+    repo.insertToken(makeDetectedToken({ name: '100% PUMP', symbol: 'P_1' }));
+    expect(repo.listTokens({ limit: 10, offset: 0, search: '%' }).items.map((t) => t.symbol)).toEqual(['P_1']);
+    expect(repo.listTokens({ limit: 10, offset: 0, search: '_' }).items.map((t) => t.symbol)).toEqual(['P_1']);
   });
 
   it('keeps price ticks and prunes old ones', () => {

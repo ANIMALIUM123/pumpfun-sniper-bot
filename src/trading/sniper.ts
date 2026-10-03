@@ -204,7 +204,7 @@ export class Sniper {
           side: 'buy',
           mode: this.trader.mode,
           success: false,
-          solAmount: this.cfg.buyAmountSol,
+          solAmount: 0, // nothing was spent (only the network fee, if the tx landed and reverted)
           tokenAmount: 0n,
           price: null,
           signature,
