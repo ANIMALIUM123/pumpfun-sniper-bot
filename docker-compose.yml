@@ -1,0 +1,12 @@
+services:
+  sniper:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      API_HOST: 0.0.0.0
+    ports:
+      # Only reachable from the host machine. Set API_KEY before exposing it any further.
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - ./data:/app/data
